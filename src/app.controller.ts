@@ -23,7 +23,6 @@ export class AppController {
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('avatar'))
   async try(@UploadedFile() file: Express.Multer.File) {
-    console.log(file)
     return "hey"
   }
 
