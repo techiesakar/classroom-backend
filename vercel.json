@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "DATABASE_HOST": "@POSTGRES_URL",
+    "DATABASE_HOST": "@DATABASE_HOST",
     "ACCESS_TOKEN_SECRET": "@ACCESS_TOKEN_SECRET"
   },
   "builds": [
