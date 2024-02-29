@@ -13,6 +13,7 @@ lerna-debug.log*
 pnpm-lock.yaml
 
 .env
+.env.local
 
 # OS
 .DS_Store

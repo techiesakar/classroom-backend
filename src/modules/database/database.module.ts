@@ -8,11 +8,7 @@ import { join } from 'path';
         TypeOrmModule.forRootAsync({
             useFactory: (configService: ConfigService) => ({
                 type: "postgres",
-                host: configService.getOrThrow<string>('DATABASE_HOST'),
-                port: configService.getOrThrow<number>('DATABASE_PORT'),
-                username: configService.getOrThrow<string>('DATABASE_USERNAME'),
-                password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
-                database: configService.getOrThrow<string>('DATABASE_NAME'),
+                url: configService.getOrThrow<string>('DATABASE_HOST'),
                 entities: [join(__dirname, '**', '*.entity.{ts,js}')],
                 autoLoadEntities: true,
                 synchronize: true,

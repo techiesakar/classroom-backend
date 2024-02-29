@@ -42,7 +42,7 @@ export class UsersService {
     if (!uuidValidate(id)) {
       return null
     }
-    const { password, ...result } = await this.userRepo.findOne({
+    const result = await this.userRepo.findOne({
       where: {
         id
       },
@@ -91,7 +91,6 @@ export class UsersService {
       return existingUser.classesEnrolled
     }
     else {
-      console.log(existingUser.classesTaught)
       return existingUser.classesTaught
     }
 
