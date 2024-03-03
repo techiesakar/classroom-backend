@@ -151,30 +151,29 @@ export class RoomsService {
       return null
     }
 
-    const queryBuilder = this.roomRepo.createQueryBuilder("room")
-      .innerJoinAndSelect("room.teacher", "teacher")
-      .select(["room.id", "room.name", "room.inviteCode", "teacher.id", "teacher.name"])
-
-    const query = type === "teacher"
-      ? queryBuilder
-        .where("room.teacher = :userId", { userId })
+    const whereConditions = type === "teacher"
+      ? { teacher: { id: userId } }
       : type === "student"
-        ? queryBuilder
-          .leftJoinAndSelect("room.students", "student")
-          .where("student.id = :userId", { userId })
+        ? { students: { id: userId } }
         :
-        queryBuilder
-          .leftJoinAndSelect("room.students", "student")
-          .where("teacher.id = :userId OR student.id = :userId", { userId })
+        { teacher: { id: userId } } ||
+        { students: { id: userId } }
       ;
 
+    const userClasses = await this.roomRepo.find({
+      where: { ...whereConditions },
+      relations: {
+        teacher: true
+      },
+    })
 
-    const userClasses = await query.getMany()
+    const parsedData = userClasses?.map((item) => {
+      return CustomRoom.parse(item)
+    })
 
+    console.log(parsedData)
 
-    console.log(userClasses)
-
-    return userClasses;
+    return parsedData;
   }
 
 
