@@ -38,10 +38,9 @@ export class AuthService {
   async login(user: User, response: Response) {
     const payload = { username: user.email, sub: user.id };
     response.cookie('classroom_token', this.jwtService.sign(payload), {
-      sameSite: false,
+      sameSite: "none",
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
-      domain: this.configService.getOrThrow<string>("FRONTEND_HOST") || "localhost"
     })
     return {
       message: "Logged in Successfully"
