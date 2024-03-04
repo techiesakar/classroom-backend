@@ -60,11 +60,8 @@ export class RoomsService {
    * @returns 
    */
   async generateCode(classId: string, currentUser: User) {
-    const relations = {
-      teacher: true,
-      student: false
-    }
-    const existingRoom = await this.findClassById(classId, relations)
+
+    const existingRoom = await this.findClassById(classId, currentUser.id)
     if (!existingRoom) {
       throw new NotFoundException("Invalid RoomID")
     }
@@ -79,10 +76,13 @@ export class RoomsService {
       numbers: true
     })
 
-    existingRoom.inviteCode = inviteCode
+    Object.assign(existingRoom, {
+      inviteCode
+    })
 
-    Object.assign(existingRoom, existingRoom.inviteCode)
-    return await this.roomRepo.save(existingRoom)
+    const result = await this.roomRepo.save(existingRoom)
+    const parsedResult = CustomRoom.parse(result)
+    return parsedResult
   }
 
   /**
@@ -108,31 +108,7 @@ export class RoomsService {
   }
 
 
-  /**
-   * Function to find class by ID. Optional: We can pass relation object with boolean value of teacher and students
-   * @param classId 
-   * @param relations 
-   * @returns 
-   */
-  async findClassById(classId: string, relations?: any) {
-    if (!uuidValidate(classId)) {
-      return null
-    }
-    const existingRoom = await this.roomRepo.findOne({
-      where: {
-        id: classId
-      },
-      relations: {
-        teacher: true,
-        students: true
-      }
-    })
 
-    if (!existingRoom) {
-      return null
-    }
-    return existingRoom
-  }
 
 
   /**
@@ -153,7 +129,7 @@ export class RoomsService {
 
     const queryBuilder = this.roomRepo.createQueryBuilder("room")
       .innerJoinAndSelect("room.teacher", "teacher")
-      .select(["room.id", "room.name", "room.inviteCode", "teacher.id", "teacher.name"])
+      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name"])
 
     const query = type === "teacher"
       ? queryBuilder
@@ -170,13 +146,38 @@ export class RoomsService {
 
 
     const userClasses = await query.getMany()
-
-
-    console.log(userClasses)
-
     return userClasses;
   }
 
+  /**
+   * Function to find class by ID. Optional: We can pass relation object with boolean value of teacher and students
+   * @param classId 
+   * @param userId 
+   * @returns 
+   */
+  async findClassById(classId: string, userId: string) {
+    if (!uuidValidate(classId)) {
+      return null
+    }
+
+
+
+    const query = this.roomRepo.
+      createQueryBuilder("room")
+      .innerJoinAndSelect("room.teacher", "teacher")
+      .select(["room.id", "room.name", "room.subject", "teacher.id", "teacher.name"])
+      .leftJoin("room.students", "student")
+      .where("room.id = :classId", { classId })
+      .where("teacher.id = :userId OR student.id = :userId", { userId })
+
+    const existingRoom = await query.getOne()
+    console.log(existingRoom)
+
+    if (!existingRoom) {
+      return null
+    }
+    return CustomRoom.parse(existingRoom)
+  }
 
   /**
    * Function to retrieve class based on its inviteCode
@@ -184,7 +185,7 @@ export class RoomsService {
    * @param relations 
    * @returns 
    */
-  async findClassByCode(inviteCode: string, relations?: any) {
+  async findClassByCode(inviteCode: string) {
     if (!inviteCode) {
       return null
     }

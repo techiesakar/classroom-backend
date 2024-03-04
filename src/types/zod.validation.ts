@@ -8,7 +8,7 @@ export const CustomUser = z.object({
 export const CustomRoom = z.object({
     id: z.string(),
     name: z.string(),
-    inviteCode: z.string(),
-    teacher: CustomUser,
-    // students: z.array(CustomUser).optional()
+    subject: z.string().optional(),
+    inviteCode: z.string().optional(),
+    teacher: CustomUser.optional(),
 })
