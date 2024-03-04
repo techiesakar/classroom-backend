@@ -41,6 +41,7 @@ export class AuthService {
       sameSite: "none",
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
+      secure: true
     })
     return {
       message: "Logged in Successfully"
