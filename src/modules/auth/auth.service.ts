@@ -41,7 +41,7 @@ export class AuthService {
       sameSite: true,
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
-      domain: this.configService.getOrThrow<string>("BACKEND_HOST") || "localhost"
+      domain: this.configService.getOrThrow<string>("FRONTEND_HOST") || "localhost"
     })
     return {
       message: "Logged in Successfully"
