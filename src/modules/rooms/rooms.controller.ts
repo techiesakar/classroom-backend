@@ -3,7 +3,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from 'src/entities/user.entity';
 
 import { RoomsService } from './rooms.service';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/modules/users/users.service';
 import { CurrentUser } from '../users/decorators/current-user.decorators';
 
@@ -36,21 +36,6 @@ export class RoomsController {
 
 
   /**
-   * Controller to find class of User - It accepts query param of type: teacher or student
-   * @param type 
-   * @param user 
-   * @returns 
-   */
-  @Get('viewsaaaaaaa')
-  @ApiQuery({ name: 'type', enum: UserRole })
-  @ApiOperation({ summary: "Find class of user" })
-  findAll(@Query('type') type: string, @CurrentUser() user: User) {
-    return this.userService.findUserClasses(user.id, type)
-  }
-
-
-
-  /**
   * Controller to find class of User - It accepts query param of type: teacher or student
   * @param type 
   * @param user 
@@ -61,6 +46,12 @@ export class RoomsController {
   @ApiOperation({ summary: "Find class of user" })
   findRooms(@Query('type') type: string, @CurrentUser() user: User) {
     return this.roomsService.findClassByUserId(user.id, type)
+  }
+
+  @Get(":id")
+  getClassRoomById(@Param('id') classId: string, @CurrentUser() user: User) {
+
+    return this.roomsService.findClassById(classId, user.id)
   }
 
   /**
