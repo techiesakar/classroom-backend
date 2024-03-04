@@ -7,7 +7,6 @@ import { validate as uuidValidate } from 'uuid';
 import * as Random from "generate-password"
 import { Room } from 'src/entities/room.entity';
 import { UsersService } from 'src/modules/users/users.service';
-import { RoomWithTeacher } from 'src/types/user';
 import { CustomRoom } from 'src/types/zod.validation';
 
 
@@ -50,7 +49,8 @@ export class RoomsService {
       teacher: currentUser,
       inviteCode
     })
-    return await this.roomRepo.save(result)
+    const response = await this.roomRepo.save(result)
+    return CustomRoom.parse(response)
   }
 
   /**
