@@ -41,7 +41,8 @@ export class AuthService {
       sameSite: "strict",
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
-      domain: this.configService.getOrThrow<string>("FRONTEND_HOST") || "localhost"
+      domain: this.configService.getOrThrow<string>("FRONTEND_HOST") || "localhost",
+      secure: this.configService.getOrThrow<string>("MODE") == "production" ? true : false
     })
     return {
       message: "Logged in Successfully"
