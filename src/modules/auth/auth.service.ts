@@ -37,7 +37,8 @@ export class AuthService {
 
   async login(user: User, response: Response) {
     const payload = { username: user.email, sub: user.id };
-    response.cookie('classroom_token', this.jwtService.sign(payload), {
+    const jwtToken = this.jwtService.sign(payload)
+    response.cookie('classroom_token', jwtToken, {
       sameSite: "strict",
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
@@ -45,7 +46,8 @@ export class AuthService {
       secure: this.configService.getOrThrow<string>("MODE") == "production" ? true : false
     })
     return {
-      message: "Logged in Successfully"
+      message: "Logged in Successfully",
+      classroom_token: jwtToken
     }
   }
 }
