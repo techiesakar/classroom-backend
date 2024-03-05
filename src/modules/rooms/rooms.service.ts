@@ -133,15 +133,15 @@ export class RoomsService {
 
     const query = type === "teacher"
       ? queryBuilder
-        .where("room.teacher = :userId", { userId })
+        .where("room.teacher = :userId", { userId }).orderBy("room.name", "ASC")
       : type === "student"
         ? queryBuilder
           .leftJoinAndSelect("room.students", "student")
-          .where("student.id = :userId", { userId })
+          .where("student.id = :userId", { userId }).orderBy("room.name", "ASC")
         :
         queryBuilder
           .leftJoinAndSelect("room.students", "student")
-          .where("teacher.id = :userId OR student.id = :userId", { userId })
+          .where("teacher.id = :userId OR student.id = :userId", { userId }).orderBy("room.name", "ASC")
       ;
 
 
@@ -160,15 +160,17 @@ export class RoomsService {
       return null
     }
 
-
+    if (!userId) {
+      return null
+    }
 
     const query = this.roomRepo.
       createQueryBuilder("room")
       .innerJoinAndSelect("room.teacher", "teacher")
       .select(["room.id", "room.name", "room.subject", "teacher.id", "teacher.name"])
       .leftJoin("room.students", "student")
-      .where("room.id = :classId", { classId })
       .where("teacher.id = :userId OR student.id = :userId", { userId })
+      .where("room.id = :classId", { classId })
 
     const existingRoom = await query.getOne()
     console.log(existingRoom)
