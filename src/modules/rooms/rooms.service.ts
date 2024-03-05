@@ -167,7 +167,7 @@ export class RoomsService {
     const query = this.roomRepo.
       createQueryBuilder("room")
       .innerJoinAndSelect("room.teacher", "teacher")
-      .select(["room.id", "room.name", "room.subject", "teacher.id", "teacher.name"])
+      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name"])
       .leftJoin("room.students", "student")
       .where("teacher.id = :userId OR student.id = :userId", { userId })
       .where("room.id = :classId", { classId })
