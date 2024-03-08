@@ -11,4 +11,5 @@ export const CustomRoom = z.object({
     subject: z.string().optional(),
     inviteCode: z.string().optional(),
     teacher: CustomUser.optional(),
+    students: CustomUser.array().optional()
 })

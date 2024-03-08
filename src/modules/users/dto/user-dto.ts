@@ -1,7 +1,15 @@
 import { Expose } from 'class-transformer'
 import { FileSystemStoredFile } from 'nestjs-form-data'
 
-export class UserDto {
+export class BasicUserDto {
+    @Expose()
+    id: string
+
+    @Expose()
+    name: string
+}
+
+export class UserResponseDto {
     @Expose()
     id: string
 
