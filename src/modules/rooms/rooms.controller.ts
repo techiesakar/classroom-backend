@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from 'src/entities/user.entity';
 
 import { RoomsService } from './rooms.service';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/modules/users/users.service';
 import { CurrentUser } from '../users/decorators/current-user.decorators';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 
 export enum UserRole {
@@ -15,6 +16,7 @@ export enum UserRole {
 
 @ApiBearerAuth()
 @ApiTags('Classroom')
+@UseGuards(JwtAuthGuard)
 @Controller('class')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService,
@@ -28,6 +30,7 @@ export class RoomsController {
    * @returns 
    */
   @Post('create')
+
   @ApiOperation({ summary: "Create classroom" })
   @HttpCode(HttpStatus.OK)
   create(@Body() createRoomDto: CreateRoomDto, @CurrentUser() user: User) {
@@ -45,12 +48,12 @@ export class RoomsController {
   @ApiQuery({ name: 'type', enum: UserRole })
   @ApiOperation({ summary: "Find class of user" })
   findRooms(@Query('type') type: string, @CurrentUser() user: User) {
+    console.log("hey")
     return this.roomsService.findClassByUserId(user.id, type)
   }
 
   @Get(":id")
   getClassRoomById(@Param('id') classId: string, @CurrentUser() user: User) {
-
     return this.roomsService.findClassById(classId, user.id)
   }
 
@@ -61,6 +64,7 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':id/generate')
+
   @ApiOperation({ summary: "Generate Classroom Invite Code" })
   generate(@Param('id') classId: string, @CurrentUser() currentUser: User) {
     return this.roomsService.generateCode(classId, currentUser)
@@ -73,6 +77,7 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':inviteCode/join')
+
   @ApiOperation({ summary: "Join classroom" })
   joinClass(@Param('inviteCode') inviteCode: string, @CurrentUser() currentUser: User) {
     return this.roomsService.joinClass(inviteCode, currentUser)
