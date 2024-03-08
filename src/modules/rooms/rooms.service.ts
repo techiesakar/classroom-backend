@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
@@ -104,7 +104,13 @@ export class RoomsService {
     }
 
     currentUser.classesEnrolled.push(existingRoom)
-    return await this.userService.updateUser(currentUser)
+    const updateUser = await this.userService.updateUser(currentUser)
+    if (updateUser) {
+      return CustomRoom.parse(existingRoom)
+    }
+    else {
+      throw new ForbiddenException("Not authorized")
+    }
   }
 
 
