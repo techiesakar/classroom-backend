@@ -4,9 +4,10 @@ import { User } from 'src/entities/user.entity';
 
 import { RoomsService } from './rooms.service';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { UsersService } from 'src/modules/users/users.service';
 import { CurrentUser } from '../users/decorators/current-user.decorators';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { RoomResponseDto } from './dto/room-dto';
 
 
 export enum UserRole {
@@ -15,12 +16,12 @@ export enum UserRole {
 }
 
 @ApiBearerAuth()
+@Serialize(RoomResponseDto)
 @ApiTags('Classroom')
 @UseGuards(JwtAuthGuard)
 @Controller('class')
 export class RoomsController {
-  constructor(private readonly roomsService: RoomsService,
-    private readonly userService: UsersService
+  constructor(private readonly roomsService: RoomsService
   ) { }
 
   /**
@@ -47,9 +48,8 @@ export class RoomsController {
   @Get('views')
   @ApiQuery({ name: 'type', enum: UserRole })
   @ApiOperation({ summary: "Find class of user" })
-  findRooms(@Query('type') type: string, @CurrentUser() user: User) {
-    console.log("hey")
-    return this.roomsService.findClassByUserId(user.id, type)
+  async findRooms(@Query('type') type: string, @CurrentUser() user: User) {
+    return await this.roomsService.findClassByUserId(user.id, type)
   }
 
   @Get(":id")
@@ -82,6 +82,4 @@ export class RoomsController {
   joinClass(@Param('inviteCode') inviteCode: string, @CurrentUser() currentUser: User) {
     return this.roomsService.joinClass(inviteCode, currentUser)
   }
-
-
 }

@@ -32,12 +32,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (req.cookies && 'classroom_token' in req.cookies && req.cookies.classroom_token.length > 0) {
             return req.cookies.classroom_token
         }
-        console.log(req.cookies.classroom_token)
         const authHeader = req.headers.authorization
         if (authHeader && authHeader.startsWith('Bearer')) {
             return authHeader.substring(7)
         }
-        console.log(authHeader)
         return null
     }
 

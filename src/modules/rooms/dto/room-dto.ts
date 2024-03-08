@@ -1,7 +1,7 @@
-import { Expose, Transform } from "class-transformer";
-import { User } from "src/entities/user.entity";
+import { Expose, Type } from "class-transformer";
+import { BasicUserDto } from "src/modules/users/dto/user-dto";
 
-export class RoomDto {
+export class RoomResponseDto {
     @Expose()
     id: string
 
@@ -14,4 +14,11 @@ export class RoomDto {
     @Expose()
     inviteCode: string
 
+    @Type(() => BasicUserDto)
+    @Expose()
+    teacher: BasicUserDto
+
+    @Type(() => BasicUserDto)
+    @Expose()
+    students: BasicUserDto[]
 }

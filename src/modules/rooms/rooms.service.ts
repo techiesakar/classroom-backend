@@ -1,4 +1,11 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
+
 import { CreateRoomDto } from './dto/create-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
@@ -7,11 +14,13 @@ import { validate as uuidValidate } from 'uuid';
 import * as Random from "generate-password"
 import { Room } from 'src/entities/room.entity';
 import { UsersService } from 'src/modules/users/users.service';
-import { CustomRoom } from 'src/types/zod.validation';
+import { RoomResponseDto } from './dto/room-dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
 
 
 
 @Injectable()
+@Serialize(RoomResponseDto)
 export class RoomsService {
   constructor(
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
@@ -50,7 +59,8 @@ export class RoomsService {
       inviteCode
     })
     const response = await this.roomRepo.save(result)
-    return CustomRoom.parse(response)
+    // return CustomRoom.parse(response)
+    return response
   }
 
   /**
@@ -80,9 +90,8 @@ export class RoomsService {
       inviteCode
     })
 
-    const result = await this.roomRepo.save(existingRoom)
-    const parsedResult = CustomRoom.parse(result)
-    return parsedResult
+    return await this.roomRepo.save(existingRoom)
+
   }
 
   /**
@@ -106,7 +115,7 @@ export class RoomsService {
     currentUser.classesEnrolled.push(existingRoom)
     const updateUser = await this.userService.updateUser(currentUser)
     if (updateUser) {
-      return CustomRoom.parse(existingRoom)
+      return existingRoom
     }
     else {
       throw new ForbiddenException("Not authorized")
@@ -134,25 +143,22 @@ export class RoomsService {
     }
 
     const queryBuilder = this.roomRepo.createQueryBuilder("room")
-      .innerJoinAndSelect("room.teacher", "teacher")
-      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name"])
+      .innerJoin("room.teacher", "teacher")
+      .leftJoin("room.students", "student")
+      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name", "teacher.password", "student.id", "student.name"])
 
     const query = type === "teacher"
       ? queryBuilder
         .where("room.teacher = :userId", { userId }).orderBy("room.name", "ASC")
       : type === "student"
         ? queryBuilder
-          .leftJoinAndSelect("room.students", "student")
           .where("student.id = :userId", { userId }).orderBy("room.name", "ASC")
         :
         queryBuilder
-          .leftJoinAndSelect("room.students", "student")
           .where("teacher.id = :userId OR student.id = :userId", { userId }).orderBy("room.name", "ASC")
       ;
+    return await query.getMany()
 
-
-    const userClasses = await query.getMany()
-    return userClasses;
   }
 
   /**
@@ -179,12 +185,11 @@ export class RoomsService {
       .where("room.id = :classId", { classId })
 
     const existingRoom = await query.getOne()
-    console.log(existingRoom)
 
     if (!existingRoom) {
       return null
     }
-    return CustomRoom.parse(existingRoom)
+    return existingRoom
   }
 
   /**

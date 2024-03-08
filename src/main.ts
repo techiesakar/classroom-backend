@@ -27,13 +27,12 @@ async function bootstrap() {
     .setDescription('The Google Classroom Clone API documentation')
     .setVersion('1.0')
     .build()
-    ;
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.BACKEND_PORT).then(() => {
-    console.log(`Server is running on http://localhost:${process.env.BACKEND_PORT}`)
+    console.log(`Server is running on ${process.env.MODE === "development" ? `http://localhost:${process.env.BACKEND_PORT}` : `https://${process.env.BACKEND_HOST}`}`)
   });
 }
 bootstrap();
