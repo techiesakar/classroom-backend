@@ -145,7 +145,7 @@ export class RoomsService {
     const queryBuilder = this.roomRepo.createQueryBuilder("room")
       .innerJoin("room.teacher", "teacher")
       .leftJoin("room.students", "student")
-      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name", "teacher.password", "student.id", "student.name"])
+      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name", "student.id", "student.name"])
 
     const query = type === "teacher"
       ? queryBuilder
@@ -179,8 +179,7 @@ export class RoomsService {
     const query = this.roomRepo.
       createQueryBuilder("room")
       .innerJoinAndSelect("room.teacher", "teacher")
-      .select(["room.id", "room.name", "room.inviteCode", "room.subject", "teacher.id", "teacher.name"])
-      .leftJoin("room.students", "student")
+      .leftJoinAndSelect("room.students", "student")
       .where("teacher.id = :userId OR student.id = :userId", { userId })
       .where("room.id = :classId", { classId })
 
