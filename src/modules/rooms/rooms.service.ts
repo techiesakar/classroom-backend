@@ -216,6 +216,16 @@ export class RoomsService {
     return existingRoom
   }
 
+  async removeClass(classId: string, userId: string) {
+    const existingRoom = await this.findClassById(classId, userId)
+    if (existingRoom.teacher.id !== userId || !existingRoom) {
+      throw new UnauthorizedException()
+    }
+    return await this.roomRepo.softRemove(existingRoom)
+
+
+  }
+
 
 
 

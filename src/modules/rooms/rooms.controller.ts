@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, Res, HttpCode, HttpStatus, UseGuards, Delete } from '@nestjs/common';
+import { Response } from 'express';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from 'src/entities/user.entity';
 
@@ -8,6 +9,7 @@ import { CurrentUser } from '../users/decorators/current-user.decorators';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { RoomResponseDto } from './dto/room-dto';
+
 
 
 export enum UserRole {
@@ -64,10 +66,20 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':id/generate')
-
   @ApiOperation({ summary: "Generate Classroom Invite Code" })
   generate(@Param('id') classId: string, @CurrentUser() currentUser: User) {
     return this.roomsService.generateCode(classId, currentUser)
+  }
+
+  /**
+   * Controller to remove class
+   * @param classId 
+   * @param currentUser 
+   * @returns 
+   */
+  @Delete(':id')
+  async remove(@Param("id") classId: string, @CurrentUser() currentUser: User) {
+    return this.roomsService.removeClass(classId, currentUser.id)
   }
 
   /**
