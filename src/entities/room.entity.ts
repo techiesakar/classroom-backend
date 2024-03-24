@@ -1,6 +1,7 @@
 import { BaseEntity } from "src/entities/base.entity";
 import { User } from "src/entities/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, Unique } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, Unique } from "typeorm";
+import { Announcement } from "./announcement.entity";
 
 @Entity()
 @Unique(["inviteCode"])
@@ -20,4 +21,7 @@ export class Room extends BaseEntity {
     @ManyToMany(() => User, (user) => user.classesEnrolled, { nullable: true })
     @JoinTable()
     students: User[]
+
+    @OneToMany(() => Announcement, announcement => announcement.room, { nullable: true })
+    announcements: Announcement[]
 }

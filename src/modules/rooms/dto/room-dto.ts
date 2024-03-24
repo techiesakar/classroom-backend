@@ -1,4 +1,5 @@
 import { Expose, Type } from "class-transformer";
+import { AnnouncementResponseDto } from "src/modules/announcements/dto/announcement-response.dto";
 import { BasicUserDto } from "src/modules/users/dto/user-dto";
 
 export class RoomResponseDto {
@@ -21,4 +22,8 @@ export class RoomResponseDto {
     @Type(() => BasicUserDto)
     @Expose()
     students: BasicUserDto[]
+
+    @Type(() => AnnouncementResponseDto)
+    @Expose()
+    announcements: AnnouncementResponseDto[]
 }

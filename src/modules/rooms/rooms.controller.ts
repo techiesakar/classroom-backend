@@ -21,7 +21,7 @@ export enum UserRole {
 @Serialize(RoomResponseDto)
 @ApiTags('Classroom')
 @UseGuards(JwtAuthGuard)
-@Controller('class')
+@Controller('room')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService
   ) { }
@@ -89,9 +89,14 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':inviteCode/join')
-
   @ApiOperation({ summary: "Join classroom" })
   joinClass(@Param('inviteCode') inviteCode: string, @CurrentUser() currentUser: User) {
     return this.roomsService.joinClass(inviteCode, currentUser)
+  }
+
+  @Patch('/unenroll/:classId')
+  unEnroll(@Param('classId') classId: string, @CurrentUser() currentUser: User) {
+    console.log(`You're unenrolling ${classId}`)
+    return this.roomsService.unEnroll(classId, currentUser)
   }
 }
