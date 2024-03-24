@@ -1,6 +1,7 @@
 import { Room } from "src/entities/room.entity"
 import { BaseEntity } from "src/entities/base.entity"
 import { Entity, Column, OneToMany, Unique, ManyToMany } from "typeorm"
+import { Comment } from "./comment.entity"
 
 @Entity()
 @Unique(["email"])
@@ -33,4 +34,7 @@ export class User extends BaseEntity {
 
     @ManyToMany(() => Room, (room) => room.students)
     classesEnrolled: Room[]
+
+    @OneToMany(() => Comment, comment => comment.user, { cascade: true, onDelete: 'CASCADE' })
+    comments: Comment[]
 }

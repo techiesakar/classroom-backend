@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, Res, HttpCode, HttpStatus, UseGuards, Delete } from '@nestjs/common';
+import { Response } from 'express';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from 'src/entities/user.entity';
 
@@ -10,6 +11,7 @@ import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { RoomResponseDto } from './dto/room-dto';
 
 
+
 export enum UserRole {
   teacher = 'teacher',
   student = 'student',
@@ -19,7 +21,7 @@ export enum UserRole {
 @Serialize(RoomResponseDto)
 @ApiTags('Classroom')
 @UseGuards(JwtAuthGuard)
-@Controller('class')
+@Controller('room')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService
   ) { }
@@ -64,10 +66,20 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':id/generate')
-
   @ApiOperation({ summary: "Generate Classroom Invite Code" })
   generate(@Param('id') classId: string, @CurrentUser() currentUser: User) {
     return this.roomsService.generateCode(classId, currentUser)
+  }
+
+  /**
+   * Controller to remove class
+   * @param classId 
+   * @param currentUser 
+   * @returns 
+   */
+  @Delete(':id')
+  async remove(@Param("id") classId: string, @CurrentUser() currentUser: User) {
+    return this.roomsService.removeClass(classId, currentUser.id)
   }
 
   /**
@@ -77,9 +89,14 @@ export class RoomsController {
    * @returns 
    */
   @Patch(':inviteCode/join')
-
   @ApiOperation({ summary: "Join classroom" })
   joinClass(@Param('inviteCode') inviteCode: string, @CurrentUser() currentUser: User) {
     return this.roomsService.joinClass(inviteCode, currentUser)
+  }
+
+  @Patch('/unenroll/:classId')
+  unEnroll(@Param('classId') classId: string, @CurrentUser() currentUser: User) {
+    console.log(`You're unenrolling ${classId}`)
+    return this.roomsService.unEnroll(classId, currentUser)
   }
 }

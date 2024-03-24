@@ -22,7 +22,7 @@ export class AuthService {
     }
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException("Invalid Credential")
+      throw new UnauthorizedException("Email address doesn't exists")
     }
     const passwordMatch = await bcrypt.compare(password, user.password)
     if (user && passwordMatch) {

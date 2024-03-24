@@ -7,6 +7,7 @@ import { DatabaseModule } from 'src/modules/database/database.module';
 import { UsersModule } from 'src/modules/users/users.module';
 import { RoomsModule } from 'src/modules/rooms/rooms.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { AnnouncementModule } from './modules/announcements/announcements.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from 'src/modules/auth/auth.module';
     RoomsModule,
     AuthModule,
     DatabaseModule,
+    AnnouncementModule
   ],
 
   controllers: [AppController],

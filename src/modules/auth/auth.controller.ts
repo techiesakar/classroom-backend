@@ -46,7 +46,6 @@ export class AuthController {
     return await this.userService.create(createUserDto)
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Get('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
