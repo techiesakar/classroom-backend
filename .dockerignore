@@ -1,0 +1,25 @@
+# Versioning and metadata
+.git
+.gitignore
+.dockerignore
+
+# Build dependencies
+dist
+node_modules
+coverage
+
+# Environment (contains sensitive data)
+.env
+.env.local
+.vercel
+
+# Files not required for production
+.editorconfig
+.eslintrc.js
+.prettierrc
+.vscode
+Dockerfile
+README.md
+nodemon.json
+test
+vercel.json

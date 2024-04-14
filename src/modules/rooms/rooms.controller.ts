@@ -1,5 +1,4 @@
 import { Controller, Get, Post, Body, Patch, Param, Query, Res, HttpCode, HttpStatus, UseGuards, Delete } from '@nestjs/common';
-import { Response } from 'express';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { User } from 'src/entities/user.entity';
 
@@ -33,7 +32,6 @@ export class RoomsController {
    * @returns 
    */
   @Post('create')
-
   @ApiOperation({ summary: "Create classroom" })
   @HttpCode(HttpStatus.OK)
   create(@Body() createRoomDto: CreateRoomDto, @CurrentUser() user: User) {

@@ -2,22 +2,24 @@ import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { Announcement } from "./announcement.entity";
 import { User } from "./user.entity";
+import { Room } from "./room.entity";
+import { Assignment } from "./assignment.entity";
+
 
 @Entity()
 export class Comment extends BaseEntity {
     @Column()
     title: string
 
-    @ManyToOne(() => Announcement, announcement => announcement.comments)
-    announcement: Announcement
-
-    @ManyToOne(() => Comment, comment => comment.replies, { nullable: true })
-    parentComment: Comment
-
-    @OneToMany(() => Comment, comment => comment.parentComment, { cascade: true, onDelete: 'CASCADE' })
-    replies: Comment[]
-
     @ManyToOne(() => User, user => user.comments)
     user: User
 
+    @ManyToOne(() => Room, room => room.comments)
+    room: Room
+
+    @ManyToOne(() => Announcement, announcement => announcement.comments)
+    announcement: Announcement
+
+    @ManyToOne(() => Assignment, assignment => assignment.comments)
+    assignment: Assignment
 }
