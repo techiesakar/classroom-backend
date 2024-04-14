@@ -1,0 +1,13 @@
+services:
+  nestjs_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    env_file:
+      - .env
+    volumes:
+      - ./src:/usr/src/app/src
+    postgresql_db:
+      image:

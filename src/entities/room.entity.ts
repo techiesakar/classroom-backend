@@ -2,6 +2,9 @@ import { BaseEntity } from "src/entities/base.entity";
 import { User } from "src/entities/user.entity";
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, Unique } from "typeorm";
 import { Announcement } from "./announcement.entity";
+import { nullable } from "zod";
+import { Comment } from "./comment.entity";
+import { Assignment } from "./assignment.entity";
 
 @Entity()
 @Unique(["inviteCode"])
@@ -24,4 +27,10 @@ export class Room extends BaseEntity {
 
     @OneToMany(() => Announcement, announcement => announcement.room, { nullable: true })
     announcements: Announcement[]
+
+    @OneToMany(() => Assignment, assignment => assignment.room, { nullable: true })
+    assignments: Assignment[]
+
+    @OneToMany(() => Comment, comment => comment.room, { nullable: true })
+    comments: Comment[]
 }

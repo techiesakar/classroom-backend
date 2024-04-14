@@ -41,13 +41,13 @@ export class AnnouncementsController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get all anouncements of the particular room' })
+    @ApiOperation({ summary: 'Get a single announcement of the particular room' })
     @HttpCode(HttpStatus.OK)
     findAnnouncements(
-        @Param('id') classId: string,
+        @Param('id') announcementId: string,
         @CurrentUser() currentUser: User,
     ) {
-        return this.announcementService.findAll(classId, currentUser);
+        return this.announcementService.findOne(announcementId, currentUser.id);
     }
 
     @ApiOperation({ summary: 'Delete Announcement' })

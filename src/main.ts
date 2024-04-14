@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common'
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -9,30 +9,35 @@ async function bootstrap() {
 
   app.enableCors({
     origin: process.env.FRONTEND_ORIGIN,
-    credentials: true,
+    credentials: false,
     optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE']
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   });
 
   app.use(cookieParser());
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true
-  }))
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
 
   // Swagger Setup
 
-  const config = new DocumentBuilder().addCookieAuth()
+  const config = new DocumentBuilder()
+    .addCookieAuth()
     .setTitle('Google Classroom Clone')
     .setDescription('The Google Classroom Clone API documentation')
     .setVersion('1.0')
-    .build()
+    .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.BACKEND_PORT).then(() => {
-    console.log(`Server is running on ${process.env.MODE === "development" ? `http://localhost:${process.env.BACKEND_PORT}` : `https://${process.env.BACKEND_HOST}`}`)
+    console.log(
+      `Server is running on ${process.env.MODE === 'production' ? `https://${process.env.BACKEND_HOST}  ` : `http://localhost:${process.env.BACKEND_PORT}`}`,
+    );
   });
 }
 bootstrap();

@@ -8,6 +8,7 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { RoomsModule } from 'src/modules/rooms/rooms.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { AnnouncementModule } from './modules/announcements/announcements.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { AnnouncementModule } from './modules/announcements/announcements.module
     RoomsModule,
     AuthModule,
     DatabaseModule,
-    AnnouncementModule
+    AnnouncementModule,
+    CommentsModule
   ],
 
   controllers: [AppController],

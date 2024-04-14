@@ -73,20 +73,46 @@ export class AnnouncementsService {
         return existingRoom.announcements;
     }
 
-    async removeAnnouncement(announcementId: string, currentUser: User) {
-        const userId = currentUser.id
+    async findOne(announcementId: string, userId: string) {
         const queryBuilder = this.announcementRepo
             .createQueryBuilder('announcement')
-            .leftJoinAndSelect('announcement.room', 'room')
-            .leftJoinAndSelect('room.teacher', 'teacher')
-            .where('announcement.id = :announcementId', { announcementId }) // Selecting only one announcement with provided ID
-            .andWhere('teacher.id = :userId', { userId }) // To ensure only teacher can delete announcement
+            .leftJoin('announcement.room', 'room')
+            .leftJoin('room.teacher', 'teacher')
+            .leftJoin('room.students', 'student')
+            .leftJoin('announcement.comments', 'comment')
+            .leftJoin('comment.user', 'user')
+            .select([
+                'announcement.id',
+                'announcement.title',
+                'announcement.description',
+                'announcement.updatedAt',
+                'room.id',
+                'room.name',
+                'teacher.id',
+                'teacher.name',
+                'comment.id',
+                'comment.title',
+                'user.name',
+                'user.id'
+            ])
+            .where('announcement.id = :announcementId', { announcementId })
+            .andWhere('teacher.id = :userId OR student.id = :userId', { userId })
+        const result = await queryBuilder.getOne()
+        console.log(result)
+        return result
+    }
 
-        const announcement = await queryBuilder.getOne()
+    async removeAnnouncement(announcementId: string, currentUser: User) {
+        const announcement = await this.findOne(announcementId, currentUser.id)
 
-        if (!announcement) {
-            throw new NotFoundException()
+        if (!announcement || announcement?.room?.teacher?.id !== currentUser.id) {
+            throw new UnauthorizedException()
         }
+
         return this.announcementRepo.remove(announcement)
+    }
+
+    async updateAnnouncement(announcementId: string, currentUser: User) {
+        const announcement = this.findOne(announcementId, currentUser.id)
     }
 }
