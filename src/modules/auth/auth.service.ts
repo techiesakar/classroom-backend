@@ -2,29 +2,28 @@ import { Injectable, Res, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 
-import * as bcrypt from "bcrypt"
+import * as bcrypt from 'bcrypt';
 import { User } from 'src/entities/user.entity';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService,
+  constructor(
+    private usersService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService
-
-  ) { }
-
+    private configService: ConfigService,
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     if (!email || !password) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException();
     }
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException("Email address doesn't exists")
+      throw new UnauthorizedException("Email address doesn't exists");
     }
-    const passwordMatch = await bcrypt.compare(password, user.password)
+    const passwordMatch = await bcrypt.compare(password, user.password);
     if (user && passwordMatch) {
       const { password, ...result } = user;
 
@@ -34,20 +33,23 @@ export class AuthService {
     return null;
   }
 
-
   async login(user: User, response: Response) {
     const payload = { username: user.email, sub: user.id };
-    const jwtToken = this.jwtService.sign(payload)
+    const jwtToken = this.jwtService.sign(payload);
     response.cookie('classroom_token', jwtToken, {
-      sameSite: "strict",
+      sameSite: 'strict',
       httpOnly: true,
       expires: new Date(Date.now() + 1000 * 60 * 60 * 1),
-      domain: this.configService.getOrThrow<string>("FRONTEND_HOST") || "localhost",
-      secure: this.configService.getOrThrow<string>("MODE") == "production" ? true : false
-    })
+      domain:
+        this.configService.getOrThrow<string>('FRONTEND_HOST') || 'localhost',
+      secure:
+        this.configService.getOrThrow<string>('MODE') == 'production'
+          ? true
+          : false,
+    });
     return {
-      message: "Logged in Successfully",
-      classroom_token: jwtToken
-    }
+      message: 'Logged in Successfully',
+      classroom_token: jwtToken,
+    };
   }
 }

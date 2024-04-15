@@ -109,7 +109,7 @@ export class RoomsService {
     }
 
     currentUser.classesEnrolled.push(existingRoom);
-    const updateUser = await this.userService.updateUser(currentUser);
+    const updateUser = await this.userService.updateUserClass(currentUser);
     if (updateUser) {
       return existingRoom;
     } else {
@@ -237,7 +237,7 @@ export class RoomsService {
     currentUser.classesEnrolled = currentUser.classesEnrolled.filter(
       (room) => room.id !== classId,
     );
-    return await this.userService.updateUser(currentUser);
+    return await this.userService.updateUserClass(currentUser);
   }
 
   /**

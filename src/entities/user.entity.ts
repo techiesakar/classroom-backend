@@ -29,6 +29,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  school_college: string;
+
   @OneToMany(() => Room, (room) => room.teacher, { nullable: true })
   classesTaught: Room[];
 
