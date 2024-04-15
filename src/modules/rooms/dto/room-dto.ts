@@ -1,29 +1,29 @@
-import { Expose, Type } from "class-transformer";
-import { AnnouncementResponseDto } from "src/modules/announcements/dto/announcement-response.dto";
-import { BasicUserDto } from "src/modules/users/dto/user-dto";
+import { Expose, Type } from 'class-transformer';
+import { AnnouncementResponseDto } from '../../announcements/dto/announcement-response.dto';
+import { BasicUserDto } from '../../users/dto/user-dto';
 
 export class RoomResponseDto {
-    @Expose()
-    id: string
+  @Expose()
+  id: string;
 
-    @Expose()
-    name: string
+  @Expose()
+  name: string;
 
-    @Expose()
-    subject: string
+  @Expose()
+  subject: string;
 
-    @Expose()
-    inviteCode: string
+  @Expose()
+  inviteCode: string;
 
-    @Type(() => BasicUserDto)
-    @Expose()
-    teacher: BasicUserDto
+  @Type(() => BasicUserDto)
+  @Expose()
+  teacher: BasicUserDto;
 
-    @Type(() => BasicUserDto)
-    @Expose()
-    students: BasicUserDto[]
+  @Type(() => BasicUserDto)
+  @Expose()
+  students: BasicUserDto[];
 
-    @Type(() => AnnouncementResponseDto)
-    @Expose()
-    announcements: AnnouncementResponseDto[]
+  @Type(() => AnnouncementResponseDto)
+  @Expose()
+  announcements: AnnouncementResponseDto[];
 }

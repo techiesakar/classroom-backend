@@ -12,10 +12,10 @@ import { ILike, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { validate as uuidValidate } from 'uuid';
 import * as Random from 'generate-password';
-import { Room } from 'src/entities/room.entity';
-import { UsersService } from 'src/modules/users/users.service';
+import { Room } from '../../entities/room.entity';
+import { UsersService } from '../users/users.service';
 import { RoomResponseDto } from './dto/room-dto';
-import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { Serialize } from '../../interceptors/serialize.interceptor';
 
 @Injectable()
 @Serialize(RoomResponseDto)
