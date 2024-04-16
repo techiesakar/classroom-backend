@@ -55,6 +55,61 @@ export class UsersService {
     return await this.userRepo.save(user);
   }
 
+  // This display single user data with enrolled class
+  async findOneWithEnrolledClass(id: string) {
+    const result = await this.userRepo.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        classesEnrolled: true,
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  }
+
+  // This display single user data with classes he/she taught
+  async findOneWithClassTaught(id: string) {
+    const result = await this.userRepo.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        classesTaught: true,
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  }
+
+  // This display single user data with - all classes he/she involved
+  async findOneWithAllClass(id: string) {
+    const result = await this.userRepo.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        classesTaught: true,
+        classesEnrolled: true,
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  }
+
   // Find single user by ID
   async findOneById(id: string) {
     if (!uuidValidate(id)) {
@@ -63,10 +118,6 @@ export class UsersService {
     const result = await this.userRepo.findOne({
       where: {
         id,
-      },
-      relations: {
-        classesEnrolled: true,
-        classesTaught: true,
       },
     });
 
@@ -95,20 +146,25 @@ export class UsersService {
     return user;
   }
 
+  // This return all user in database
   findAll() {
     return this.userRepo.find();
   }
 
-  async findUserClasses(id: string, type: string) {
-    const existingUser = await this.findOneById(id);
-    if (!existingUser) {
-      throw new UnauthorizedException('Invalid User');
+  // This only return array of  room where user envolved -
+  async findRoomByUserId(userId: string, type: string) {
+    const user = await this.findOneWithAllClass(userId);
+
+    if (!user) {
+      throw new UnauthorizedException();
     }
 
-    if (type == 'student') {
-      return existingUser.classesEnrolled;
+    if (type === 'teacher') {
+      return user.classesTaught;
+    } else if (type === 'student') {
+      return user.classesEnrolled;
     } else {
-      return existingUser.classesTaught;
+      return [...user.classesEnrolled, ...user.classesTaught];
     }
   }
 

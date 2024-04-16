@@ -36,6 +36,7 @@
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
     "express-session": "^1.18.0",
+    "file-type": "^19.0.0",
     "generate-password": "^1.7.1",
     "nestjs-form-data": "^1.9.7",
     "passport": "^0.7.0",

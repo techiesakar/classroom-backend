@@ -10,10 +10,8 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
-import { validate as uuidValidate } from 'uuid';
 import * as Random from 'generate-password';
 import { Room } from '../../entities/room.entity';
-import { UsersService } from '../users/users.service';
 import { RoomResponseDto } from './dto/room-dto';
 import { Serialize } from '../../interceptors/serialize.interceptor';
 
@@ -22,7 +20,7 @@ import { Serialize } from '../../interceptors/serialize.interceptor';
 export class RoomsService {
   constructor(
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
-    private readonly userService: UsersService,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
   /**
@@ -109,7 +107,7 @@ export class RoomsService {
     }
 
     currentUser.classesEnrolled.push(existingRoom);
-    const updateUser = await this.userService.updateUserClass(currentUser);
+    const updateUser = await this.userRepo.save(currentUser);
     if (updateUser) {
       return existingRoom;
     } else {
@@ -120,60 +118,10 @@ export class RoomsService {
   /**
    * Function to find class by ID. Optional: We can pass relation object with boolean value of teacher and students
    * @param classId
-   * @param relations
-   * @returns
-   */
-  async findClassByUserId(userId: string, type: string) {
-    if (!uuidValidate(userId)) {
-      return null;
-    }
-    const existingUser = await this.userService.findOneById(userId);
-
-    if (!existingUser) {
-      return null;
-    }
-
-    const queryBuilder = this.roomRepo
-      .createQueryBuilder('room')
-      .innerJoin('room.teacher', 'teacher')
-      .leftJoin('room.students', 'student')
-      .select([
-        'room.id',
-        'room.name',
-        'room.inviteCode',
-        'room.subject',
-        'teacher.id',
-        'teacher.name',
-        'student.id',
-        'student.name',
-      ]);
-
-    const query =
-      type === 'teacher'
-        ? queryBuilder
-            .where('room.teacher = :userId', { userId })
-            .orderBy('room.name', 'ASC')
-        : type === 'student'
-          ? queryBuilder
-              .where('student.id = :userId', { userId })
-              .orderBy('room.name', 'ASC')
-          : queryBuilder
-              .where('teacher.id = :userId OR student.id = :userId', { userId })
-              .orderBy('room.name', 'ASC');
-    return await query.getMany();
-  }
-
-  /**
-   * Function to find class by ID. Optional: We can pass relation object with boolean value of teacher and students
-   * @param classId
    * @param userId
    * @returns
    */
   async findClassById(classId: string, userId: string) {
-    if (!uuidValidate(classId)) {
-      return null;
-    }
-
     if (!userId) {
       return null;
     }
@@ -237,7 +185,7 @@ export class RoomsService {
     currentUser.classesEnrolled = currentUser.classesEnrolled.filter(
       (room) => room.id !== classId,
     );
-    return await this.userService.updateUserClass(currentUser);
+    return await this.userRepo.save(currentUser);
   }
 
   /**
