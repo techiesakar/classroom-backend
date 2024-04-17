@@ -13,7 +13,6 @@ import {
 import {
   ApiCookieAuth,
   ApiOperation,
-  ApiProperty,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -34,7 +33,6 @@ export enum RoleType {
   all = 'all',
 }
 
-@Serialize(UserResponseDto)
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
 @ApiCookieAuth()
@@ -74,10 +72,12 @@ export class UsersController {
   @Get('/room')
   @Serialize(RoomResponseDto)
   @ApiQuery({ name: 'type', enum: RoleType })
-  findMyRoom(
+  async findMyRoom(
     @Query('type') type: RoleType = RoleType.all,
     @CurrentUser() currentUser: User,
   ) {
-    return this.userService.findRoomByUserId(currentUser.id, type);
+    const room = await this.userService.findRoomByUserId(currentUser.id, type);
+    // console.log(room);
+    return room;
   }
 }

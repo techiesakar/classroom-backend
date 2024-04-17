@@ -8,7 +8,7 @@ import {
 
 import { CreateRoomDto } from './dto/create-room.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Equal, FindOperator, ILike, In, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import * as Random from 'generate-password';
 import { Room } from '../../entities/room.entity';
@@ -116,16 +116,12 @@ export class RoomsService {
   }
 
   /**
-   * Function to find class by ID. Optional: We can pass relation object with boolean value of teacher and students
+   * Function to find class by ID.
    * @param classId
    * @param userId
    * @returns
    */
   async findClassById(classId: string, userId: string) {
-    if (!userId) {
-      return null;
-    }
-
     const query = this.roomRepo
       .createQueryBuilder('room')
       .innerJoinAndSelect('room.teacher', 'teacher')

@@ -6,18 +6,35 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { validate as uuidValidate } from 'uuid';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { User } from 'src/entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Room } from 'src/entities/room.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Room)
+    private readonly roomRepo: Repository<Room>,
   ) {}
 
+  // This return all user in database
+  findAll() {
+    return this.userRepo.find({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  /**
+   * Function to register a user
+   * @param createUserDto
+   * @returns
+   */
   async create(createUserDto: CreateUserDto) {
     const userExist = await this.findOneByEmail(createUserDto.username);
     if (userExist) {
@@ -27,7 +44,8 @@ export class UsersService {
       });
     }
     const { password, ...data } = createUserDto;
-    const hashPassword = await bcrypt.hash(password, 10);
+    const salt = bcrypt.genSaltSync(10);
+    const hashPassword = bcrypt.hashSync(password, salt);
     const result = await this.userRepo.save({
       email: createUserDto.username,
       password: hashPassword,
@@ -112,12 +130,15 @@ export class UsersService {
 
   // Find single user by ID
   async findOneById(id: string) {
-    if (!uuidValidate(id)) {
-      return null;
-    }
     const result = await this.userRepo.findOne({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
       },
     });
 
@@ -129,7 +150,7 @@ export class UsersService {
   }
 
   // Find single user by email
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string, showPassword?: boolean) {
     if (!email) {
       return null;
     }
@@ -138,44 +159,105 @@ export class UsersService {
       where: {
         email,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        password: showPassword || false,
+      },
     });
 
     if (!user) {
       return null;
     }
+
     return user;
   }
 
-  // This return all user in database
-  findAll() {
-    return this.userRepo.find();
-  }
-
-  // This only return array of  room where user envolved -
+  /** --------------------------- These below function returns the room of belonging user --------------------------- */
   async findRoomByUserId(userId: string, type: string) {
-    const user = await this.findOneWithAllClass(userId);
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    if (type === 'teacher') {
-      return user.classesTaught;
-    } else if (type === 'student') {
-      return user.classesEnrolled;
+    if (type == 'student') {
+      return this.findRoomEnrolled(userId);
+    } else if (type == 'teacher') {
+      return this.findRoomTeaches(userId);
     } else {
-      return [...user.classesEnrolled, ...user.classesTaught];
+      return this.findUsersRoom(userId);
     }
   }
 
-  /**
-   * This function save the data as it is it comes - This is made for enrolling and leaving class
-   * This function should only be triggered from room service
-   * I don't want to pull the user repo in user service just for this
-   * @param currentUser
-   * @returns
-   */
-  async updateUserClass(filteredUserWithClass: User) {
-    return await this.userRepo.save(filteredUserWithClass);
+  async findRoomEnrolled(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['classesEnrolled', 'classesEnrolled.teacher'],
+    });
+
+    const filteredData = user.classesEnrolled.map((room) => ({
+      id: room.id,
+      name: room.name,
+      inviteCode: room.inviteCode,
+      subject: room.subject,
+      teacher: {
+        id: room.teacher.id,
+        name: room.teacher.name,
+      },
+    }));
+
+    return filteredData;
+  }
+
+  async findRoomTeaches(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['classesTaught', 'classesTaught.teacher'],
+    });
+
+    const filteredData = user.classesTaught.map((room) => ({
+      id: room.id,
+      name: room.name,
+      inviteCode: room.inviteCode,
+      subject: room.subject,
+      teacher: {
+        id: room.teacher.id,
+        name: room.teacher.name,
+      },
+    }));
+    return filteredData;
+  }
+
+  async findUsersRoom(userId: string) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: [
+        'classesTaught',
+        'classesTaught.teacher',
+        'classesEnrolled',
+        'classesEnrolled.teacher',
+      ],
+    });
+
+    const classesTaught = user.classesTaught.map((room) => ({
+      id: room.id,
+      name: room.name,
+      inviteCode: room.inviteCode,
+      subject: room.subject,
+      teacher: {
+        id: room.teacher.id,
+        name: room.teacher.name,
+      },
+    }));
+
+    const classesEnrolled = user.classesEnrolled.map((room) => ({
+      id: room.id,
+      name: room.name,
+      inviteCode: room.inviteCode,
+      subject: room.subject,
+      teacher: {
+        id: room.teacher.id,
+        name: room.teacher.name,
+      },
+    }));
+
+    return [...classesTaught, ...classesEnrolled];
   }
 }
