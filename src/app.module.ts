@@ -9,11 +9,16 @@ import { RoomsModule } from './modules/rooms/rooms.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AnnouncementModule } from './modules/announcements/announcements.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    MulterModule.register({
+      dest: './uploads',
     }),
     UsersModule,
     RoomsModule,
@@ -21,6 +26,8 @@ import { CommentsModule } from './modules/comments/comments.module';
     DatabaseModule,
     AnnouncementModule,
     CommentsModule,
+    UploadModule,
+    UploadModule,
   ],
 
   controllers: [AppController],

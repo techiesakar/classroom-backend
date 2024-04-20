@@ -20,10 +20,5 @@
     "paths": {
       "@nestjs/*": ["node_modues/@nestjs/*"]
     }
-  },
-  "watchOptions": {
-    "watchFile": "dynamicPriorityPolling",
-    "watchDirectory": "dynamicPriorityPolling",
-    "excludeDirectories": ["**/node_modules", "dist"]
   }
 }
